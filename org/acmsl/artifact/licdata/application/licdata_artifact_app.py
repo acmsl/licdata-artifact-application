@@ -23,12 +23,14 @@ import asyncio
 from pythoneda.shared.application import enable, PythonEDA
 from org.acmsl.artifact.licdata.domain import LicdataArtifact
 from org.acmsl.artifact.licdata.infrastructure.dbus import (
+    LicdataArtifactDbusSignalEmitter,
     LicdataArtifactDbusSignalListener,
 )
 from typing import Dict
 
 
 @enable(LicdataArtifactDbusSignalListener)
+@enable(LicdataArtifactDbusSignalEmitter)
 class LicdataArtifactApp(PythonEDA):
     """
     Licdata Artifact Application.
