@@ -20,17 +20,55 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import asyncio
+from dbus_next import BusType
 from pythoneda.shared.application import enable, PythonEDA
 from org.acmsl.artifact.licdata.domain import LicdataArtifact
 from org.acmsl.artifact.licdata.infrastructure.dbus import (
     LicdataArtifactDbusSignalEmitter,
     LicdataArtifactDbusSignalListener,
 )
+from pythoneda.shared.artifact.events.infrastructure.dbus import (
+    DbusDockerImageAvailable,
+    DbusDockerImageRequested,
+    DbusDockerImagePushed,
+)
+from pythoneda.shared.runtime.secrets.events.infrastructure.dbus import (
+    DbusCredentialProvided,
+    DbusCredentialRequested,
+)
 from typing import Dict
 
 
-@enable(LicdataArtifactDbusSignalListener)
-@enable(LicdataArtifactDbusSignalEmitter)
+@enable(
+    LicdataArtifactDbusSignalListener,
+    events=[
+        {
+            "event-class": DbusDockerImageRequested,
+            "bus-type": BusType.SYSTEM,
+        },
+        {
+            "event-class": DbusCredentialProvided,
+            "bus-type": BusType.SYSTEM,
+        },
+    ],
+)
+@enable(
+    LicdataArtifactDbusSignalEmitter,
+    events=[
+        {
+            "event-class": DbusCredentialRequested,
+            "bus-type": BusType.SYSTEM,
+        },
+        {
+            "event-class": DbusDockerImageAvailable,
+            "bus-type": BusType.SYSTEM,
+        },
+        {
+            "event-class": DbusDockerImagePushed,
+            "bus-type": BusType.SYSTEM,
+        },
+    ],
+)
 class LicdataArtifactApp(PythonEDA):
     """
     Licdata Artifact Application.
