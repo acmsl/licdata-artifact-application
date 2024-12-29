@@ -96,7 +96,7 @@ class LicdataArtifactApp(PythonEDA):
         except ImportError:
             banner = None
 
-        super().__init__(banner, __file__)
+        super().__init__("Licdata Artifact", banner, __file__)
 
 
 if __name__ == "__main__":
