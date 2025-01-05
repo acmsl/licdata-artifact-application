@@ -31,6 +31,7 @@ from pythoneda.shared.artifact.events.infrastructure.dbus import (
     DbusDockerImageAvailable,
     DbusDockerImageRequested,
     DbusDockerImagePushed,
+    DbusDockerImagePushRequested,
 )
 from pythoneda.shared.runtime.secrets.events.infrastructure.dbus import (
     DbusCredentialProvided,
@@ -44,6 +45,10 @@ from typing import Dict
     events=[
         {
             "event-class": DbusDockerImageRequested,
+            "bus-type": BusType.SYSTEM,
+        },
+        {
+            "event-class": DbusDockerImagePushRequested,
             "bus-type": BusType.SYSTEM,
         },
         {
@@ -97,6 +102,29 @@ class LicdataArtifactApp(PythonEDA):
             banner = None
 
         super().__init__("Licdata Artifact", banner, __file__)
+
+    async def accept_docker_image_push_requested(self, options: Dict):
+        """
+        Annotates the Docker image push requested event.
+        :param options: The Docker image push options.
+        :type options: Dict
+        """
+        metadata = {}
+        for key, value in options.items():
+            if key not in ["stack_name", "project_name", "location"]:
+                metadata[key] = value
+
+        events = await LicdataIac.listen_DockerImagePushRequested(
+            DockerImagePushRequested(
+                options.get("stack_name", None),
+                options.get("project_name", None),
+                options.get("location", None),
+                metadata,
+            )
+        )
+
+        for event in events:
+            await self.emit(event)
 
 
 if __name__ == "__main__":
